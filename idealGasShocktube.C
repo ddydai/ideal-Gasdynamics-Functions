@@ -1,31 +1,31 @@
-// gasNozzle.cpp : ¶¨Òå¿ØÖÆÌ¨Ó¦ÓÃ³ÌÐòµÄÈë¿Úµã¡£
+// gasNozzle.cpp : å®šä¹‰æŽ§åˆ¶å°åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 // copyright by daiyuqiang@dlut.edu.cn
-//ref[1] ÕÅÁ¬Óñ£¬ÍôÁîÓð£¬ÃçÈðÉú£¬±¬Õ¨ÆøÌå¶¯Á¦Ñ§,1987,6
-//ref[2] Íõ±¦¹ú  ÁõÊçÑÞ »ÆÎ°¹â£¬ÆøÌå¶¯Á¦Ñ§£¬±±¾©Àí¹¤´óÑ§³ö°æÉç£¬2006,7
-//·ûºÅËµÃ÷
+//ref[1] å¼ è¿žçŽ‰ï¼Œæ±ªä»¤ç¾½ï¼Œè‹—ç‘žç”Ÿï¼Œçˆ†ç‚¸æ°”ä½“åŠ¨åŠ›å­¦,1987,6
+//ref[2] çŽ‹å®å›½  åˆ˜æ·‘è‰³ é»„ä¼Ÿå…‰ï¼Œæ°”ä½“åŠ¨åŠ›å­¦ï¼ŒåŒ—äº¬ç†å·¥å¤§å­¦å‡ºç‰ˆç¤¾ï¼Œ2006,7
+//ç¬¦å·è¯´æ˜Ž
 /*
- I,II    Ïà¶ÔÔË¶¯¼¤²¨µÄ²¨Ç°ºÍ²¨ºó
- 1 2     ¾ø¶ÔÔË¶¯µÄ²¨Ç°ºÍ²¨ºó
- U       ¼¤²¨Ïà¶Ô²¨Ç°ÆøÌåµÄÏà¶ÔËÙ¶È£¬»òÓÃVs±í´ï
- D       ¼¤²¨¾ø¶ÔËÙ¶È
- c       ÒôËÙ
- v       ËÙ¶È
+ I,II    ç›¸å¯¹è¿åŠ¨æ¿€æ³¢çš„æ³¢å‰å’Œæ³¢åŽ
+ 1 2     ç»å¯¹è¿åŠ¨çš„æ³¢å‰å’Œæ³¢åŽ
+ U       æ¿€æ³¢ç›¸å¯¹æ³¢å‰æ°”ä½“çš„ç›¸å¯¹é€Ÿåº¦ï¼Œæˆ–ç”¨Vsè¡¨è¾¾
+ D       æ¿€æ³¢ç»å¯¹é€Ÿåº¦
+ c       éŸ³é€Ÿ
+ v       é€Ÿåº¦
  
  vI =v1-D =        U;
  vII=v2-D =(v2-v1)+U;
- Ms      ¼¤²¨ÂíºÕÊý£¬Ms= U/c1 = D - v1(rightRuning)> 1.0
+ Ms      æ¿€æ³¢é©¬èµ«æ•°ï¼ŒMs= U/c1 = D - v1(rightRuning)> 1.0
             or     Ms=-U/c1 =v1 -  D( leftRuning)<-1.0 
  */
 #include <iostream>
 #include <math.h>
-#include "idealGasShocktube.h"
+#include "idealGasUnsteady.h"
 
 //================================================
 int main()
 {
 	std::cout<< ("Copyright by daiyuqiang@dlut.edu.cn\n")<< std::endl;	
-//ÑéÖ¤v2-v1/c1 ÇóMs,ref[1] p320 ex(8-1)
-    //ÓÉÖÍÖ¹×´Ì¬¶¨³£¼ÓËÙµ½×´Ì¬1
+//éªŒè¯v2-v1/c1 æ±‚Ms,ref[1] p320 ex(8-1)
+    //ç”±æ»žæ­¢çŠ¶æ€å®šå¸¸åŠ é€Ÿåˆ°çŠ¶æ€1
     double p0=7.83e5;
     double T0=288;
     double p1=1e5;
@@ -49,30 +49,33 @@ int main()
     std::cout<<  "pressure behind the moving shock is : "<< p2 << std:: endl;
     
  // ref[2] p278 ex16
-    v1=150;
+    v1=30;
     double T1=300;
-    p1=1.5e5;
+    //v1=sqrt(Rg*Cpv*T1);
+    p1=1.0e5;
     v2=0;
     c1=sqrt(Rg*Cpv*T1);
     ma1=v1/c1;
     ms=v21c1_to_Ms((v2-v1)/c1,Cpv);
-    std::cout<< "shockcmach Ms=   "  <<ms  <<std::endl;
+    std::cout<< "\n\n\n\n\n\n\nshockcmach Ms=   "  <<ms  <<std::endl;
+    std::cout<< "\n p2=     "  <<p21_from_Ms(ms,Cpv)*p1 <<std::endl;
+
     std::cout<< "shockcmach absolue velocity=   "  <<ms*c1+v1  <<std::endl;
     if (ms<-1) std::cout << "leftRuning shockwave found" << std::endl;
-    std::cout<<   "pressure behind the moving shock is : p2=   [v21c_to_p21Í¨ÓÃ³å»÷²¨¼«Ïß]     "<<   p1* v21c1_to_p21((v2-v1)/c1,Cpv) << std::endl;
+    std::cout<<   "pressure behind the moving shock is : p2=   [v21c_to_p21é€šç”¨å†²å‡»æ³¢æžçº¿]     "<<   p1* v21c1_to_p21((v2-v1)/c1,Cpv) << std::endl;
     std::cout<<   "pressure behind the moving shock is : p2=   [v21c_to_Ms,Ms_to_p21]   "          <<  p1* p21_from_Ms( ms, Cpv)   << std::endl;
-//ÔË¶¯¼¤²¨Ç°ºó¹ØÏµ
+//è¿åŠ¨æ¿€æ³¢å‰åŽå…³ç³»
 	double pt=1.52e6;
 	double Tt=500;
-	double ma=3.9376;//¼¤²¨Ç°mach
+	double ma=3.9376;//æ¿€æ³¢å‰mach
 	double denst=pt/Rg/Tt;
-	//ÔË¶¯¼¤²¨Ç°¾²²ÎÊý
+	//è¿åŠ¨æ¿€æ³¢å‰é™å‚æ•°
 	            p1=pt* ma_to_pst(ma);
 	            T1=Tt* ma_to_Tst(ma);
 	double dens1=denst* ma_to_Denst(ma);
 	double u1=ma*sqrt(Cpv*Rg*T1);
-//R-H¹ØÏµÑéÖ¤
-//»îÈûÔË¶¯²úÉúµÄ¼¤²¨£¬²¨Ç°p1£¬T1ºÍ²¨ºóp2ÒÑÖª
+//R-Hå…³ç³»éªŒè¯
+//æ´»å¡žè¿åŠ¨äº§ç”Ÿçš„æ¿€æ³¢ï¼Œæ³¢å‰p1ï¼ŒT1å’Œæ³¢åŽp2å·²çŸ¥
 	p1=1.013e5;
 	T1=288;
 	p2=1.1143e5;
@@ -91,7 +94,7 @@ int main()
  
 //ref[2] p226-227 ex15
 //(1)
-    std::cout<< "case 1 p21=2.5 ÔÚ¾²Ö¹ÆøÁ÷ÖÐ´«²¥¡£" << std::endl;
+    std::cout<< "case 1 p21=2.5 åœ¨é™æ­¢æ°”æµä¸­ä¼ æ’­ã€‚" << std::endl;
     p21=2.5;
     p21=1.656;
     ma1=0;
@@ -105,7 +108,7 @@ int main()
     std::cout<< "Ma2^2    "<< ma2*ma2 << std::endl;
 	
 //(2)
-    std::cout<< "case 2 p21=5 ÔÚ¾²Ö¹ÆøÁ÷ÖÐ´«²¥¡£" << std::endl;
+    std::cout<< "case 2 p21=5 åœ¨é™æ­¢æ°”æµä¸­ä¼ æ’­ã€‚" << std::endl;
     ma1=0;
     p21=5;
     v21c1=v21c1_from_p21(p21,Cpv,1);
@@ -113,7 +116,7 @@ int main()
     std::cout<< "v2/c2=Ma2    "<< ma2 << std::endl;
     std::cout<< "Ma2^2    "<< ma2*ma2 << std::endl;
 //(3-1)
-    std::cout<< "case 3-1 p21=2.5 ÔÚma1=-2.0×óÐÐÆøÁ÷ÖÐÄæÏò´«²¥(rightRuning)¡£" << std::endl;
+    std::cout<< "case 3-1 p21=2.5 åœ¨ma1=-2.0å·¦è¡Œæ°”æµä¸­é€†å‘ä¼ æ’­(rightRuning)ã€‚" << std::endl;
     ma1=-2.0;
     p21=2.5;
     v21c1=v21c1_from_p21(p21,Cpv,1);//1-rightRuning
@@ -123,7 +126,7 @@ int main()
     std::cout<< "Ms=      "<< Ms_from_p21(p21,Cpv,1)<< std::endl; 
 	
 //(3-2)
-    std::cout<< "case 3-2 p21=2.5 ÔÚma1=2.0ÓÒÐÐÆøÁ÷ÖÐÄæÏò´«²¥£¨leftRuning¡£" << std::endl;
+    std::cout<< "case 3-2 p21=2.5 åœ¨ma1=2.0å³è¡Œæ°”æµä¸­é€†å‘ä¼ æ’­ï¼ˆleftRuningã€‚" << std::endl;
     ma1=2.0;
     p21=2.5;
     v21c1=v21c1_from_p21(p21,Cpv,0);//0-leftRuning
@@ -133,7 +136,7 @@ int main()
     std::cout<< "Ms=      "<< Ms_from_p21(p21,Cpv,0)<< std::endl; 
     
 //(4-1)
-    std::cout<< "case 4-1 p21= 5 ÔÚma1=-2.0×óÐÐÆøÁ÷ÖÐÄæÏò´«²¥(rightRuning)¡£" << std::endl;
+    std::cout<< "case 4-1 p21= 5 åœ¨ma1=-2.0å·¦è¡Œæ°”æµä¸­é€†å‘ä¼ æ’­(rightRuning)ã€‚" << std::endl;
     ma1=-2.0;
     p21=5;
     v21c1=v21c1_from_p21(p21,Cpv,1);//1-rightRuning
@@ -143,7 +146,7 @@ int main()
     std::cout<< "Ms=      "<< Ms_from_p21(p21,Cpv,1)<< std::endl; 
 	
 //(4-2)
-    std::cout<< "case 4-2 p21= 5 ÔÚma1=2.0ÓÒÐÐÆøÁ÷ÖÐÄæÏò´«²¥£¨leftRuning¡£" << std::endl;
+    std::cout<< "case 4-2 p21= 5 åœ¨ma1=2.0å³è¡Œæ°”æµä¸­é€†å‘ä¼ æ’­ï¼ˆleftRuningã€‚" << std::endl;
     ma1=2.0;
     p21=5;
     v21c1=v21c1_from_p21(p21,Cpv,0);//0-leftRuning
@@ -152,8 +155,8 @@ int main()
     std::cout<< "Ma2^2    "<< ma2*ma2 << std::endl;
     std::cout<< "Ms=      "<< Ms_from_p21(p21,Cpv,0)<< std::endl; 
 
-// ¼¤²¨ÔÚ¾²Ö¹±ÚÃæµÄ·´ÉäÑéÖ¤  ref[1] p342 ex 8-4
-    std::cout<< " ÔË¶¯¼¤²¨ÔÚ¾²Ö¹±ÚÃæµÄ·´ÉäÑéÖ¤ "<<  std::endl;
+// æ¿€æ³¢åœ¨é™æ­¢å£é¢çš„åå°„éªŒè¯  ref[1] p342 ex 8-4
+    std::cout<< " è¿åŠ¨æ¿€æ³¢åœ¨é™æ­¢å£é¢çš„åå°„éªŒè¯ "<<  std::endl;
 
     double absVi=655;
                     v1=0;
@@ -165,7 +168,7 @@ int main()
     std::cout<< " reflect shock mach: Mr =  "<< Mr<< std::endl;
     p21=p21_from_Ms(ms,Cpv);
     c2=c1*sqrt(T21_from_p21(p21,Cpv));
-    v2 =v21c1_from_p21(p21,Cpv,1)*c1+v1;//ÈëÉä²¨ºóÆøËÙ,ÈëÉä¼¤²¨ÎªÓÒÐÐ
+    v2 =v21c1_from_p21(p21,Cpv,1)*c1+v1;//å…¥å°„æ³¢åŽæ°”é€Ÿ,å…¥å°„æ¿€æ³¢ä¸ºå³è¡Œ
     std::cout<< "  zone2 gas Velocity: v2=  "<<  v2  <<std::endl;
 
     double c3 =c1*c31_from_p21_shockRef_sWall(p21,Cpv);
@@ -173,20 +176,20 @@ int main()
     std::cout<< "  zone2,33  Snd Velocity: c2=  "<<  c2 << "   c3=   " <<  c3 <<std::endl;
     double Dr=Dri_from_Ms_shockRef_sWall(ms, Cpv);
     std::cout<< " reflect shock Velocity: absVr =  "<< Mr*c2 + v2<< std::endl;  //Dr =Ur+v2 
-    //·´Éä¼¤²¨Ïà¶ÔËÙ¶ÈUr Îª·´Éä¼¤²¨Ïà¶Ô ·´Éä¼¤²¨µÄ²¨Ç°ËÙ¶È¶øÑÔ£¬Ò²¾ÍÊÇÈëÉä¼¤²¨µÄ²¨ºóÆøËÙ£¬¶¼ÊÇv2,ËùÒÔ  Ur = Dr -v2
-    //ÎïÃæÑ¹Ç¿p3    
+    //åå°„æ¿€æ³¢ç›¸å¯¹é€Ÿåº¦Ur ä¸ºåå°„æ¿€æ³¢ç›¸å¯¹ åå°„æ¿€æ³¢çš„æ³¢å‰é€Ÿåº¦è€Œè¨€ï¼Œä¹Ÿå°±æ˜¯å…¥å°„æ¿€æ³¢çš„æ³¢åŽæ°”é€Ÿï¼Œéƒ½æ˜¯v2,æ‰€ä»¥  Ur = Dr -v2
+    //ç‰©é¢åŽ‹å¼ºp3    
     std::cout<< " reflect Press:  P3 =  "<< p31_from_p21_shockRef_sWall(p21, Cpv) *p1<< std::endl;  //Dr =Ur+v2 
     
-    //ÈëÉä¼¤²¨ÔÚ¹Ì±ÚÉÏ·´Éä£¬£¨v2-v1£©Óë£¨v3-v2£©Ó¦¸Ã´óÐ¡ÏàµÈ·½ÏòÏà·´£¨ÈëÉä²¨ºÍ·´Éä²¨Ò»¸ö×óÐÐÒ»¸öÓÒÐÐ£©£¬Ó¦´Ëv1=v3
-    //ÑéÖ¤v3=0, ¿ÉÒÔ¼ìÑéÖØÒªº¯Êýv21c1µÄÕýÈ·ÐÔ
+    //å…¥å°„æ¿€æ³¢åœ¨å›ºå£ä¸Šåå°„ï¼Œï¼ˆv2-v1ï¼‰ä¸Žï¼ˆv3-v2ï¼‰åº”è¯¥å¤§å°ç›¸ç­‰æ–¹å‘ç›¸åï¼ˆå…¥å°„æ³¢å’Œåå°„æ³¢ä¸€ä¸ªå·¦è¡Œä¸€ä¸ªå³è¡Œï¼‰ï¼Œåº”æ­¤v1=v3
+    //éªŒè¯v3=0, å¯ä»¥æ£€éªŒé‡è¦å‡½æ•°v21c1çš„æ­£ç¡®æ€§
     double p32=p32_from_p21_shockRef_sWall( p21, Cpv);
-    double v32c2=v21c1_from_p21(p32,Cpv,0); //×óÐÐ·´Éä¼¤²¨
+    double v32c2=v21c1_from_p21(p32,Cpv,0); //å·¦è¡Œåå°„æ¿€æ³¢
     
-    v21c1=v21c1_from_p21(p21,Cpv,1);//ÓÒÐÐÈëÉä¼¤²¨
+    v21c1=v21c1_from_p21(p21,Cpv,1);//å³è¡Œå…¥å°„æ¿€æ³¢
     std::cout<< " v2-v1=   "<< v21c1 *c1<< "     v3-v2=   " << v32c2*c2  << "    v3=   "<< v32c2*c2+v2<< std::endl;  
     
-   //¼¤²¨ÔÚÔË¶¯±ÚÃæµÄ·´ÉäÑéÖ¤
-    std::cout<< " ÔË¶¯¼¤²¨ÔÚÔË¶¯±ÚÃæµÄ·´ÉäÑéÖ¤ "<<  std::endl;
+   //æ¿€æ³¢åœ¨è¿åŠ¨å£é¢çš„åå°„éªŒè¯
+    std::cout<< " è¿åŠ¨æ¿€æ³¢åœ¨è¿åŠ¨å£é¢çš„åå°„éªŒè¯ "<<  std::endl;
     absVi= -655;
     double vw1=-100;  //  
     double vw2=-100;//389.125 make the v2=vw2
@@ -202,7 +205,7 @@ int main()
     std::cout<< " incidence shock mach: Ms =  "<< ms << std::endl;
     p21=p21_from_Ms(ms,Cpv);
     c2=c1*sqrt(T21_from_p21(p21,Cpv));
-    v2 =v21c1_from_p21(p21,Cpv,1)*c1+v1;//ÈëÉä²¨ºóÆøËÙ,ÈëÉä¼¤²¨ÎªÓÒÐÐ
+    v2 =v21c1_from_p21(p21,Cpv,1)*c1+v1;//å…¥å°„æ³¢åŽæ°”é€Ÿ,å…¥å°„æ¿€æ³¢ä¸ºå³è¡Œ
     std::cout<< "  zone2 gas Velocity: v2=  "<<  v2  <<std::endl;
     //
     Mr  =   Mr_from_p21_shockRefAsShock_mWall( p21,0, Cpv, vw1/snd1,vw3/snd1);
@@ -213,8 +216,8 @@ int main()
     std::cout<< " pressure 3 / pressure1: p31 =  "<< p31<< std::endl;
     std::cout<< " pressure 2 / pressure1: p21 =  "<< p21<< std::endl;
 
-//ÔË¶¯¼¤²¨ÔÚ¿ª¿Ú¶ËµÄ·´ÉäÑéÖ¤
-     std::cout<< " ÔË¶¯¼¤²¨ÔÚ¿ª¿Ú¶ËµÄ·´ÉäÑéÖ¤,case 1 "<<  std::endl;
+//è¿åŠ¨æ¿€æ³¢åœ¨å¼€å£ç«¯çš„åå°„éªŒè¯
+     std::cout<< " è¿åŠ¨æ¿€æ³¢åœ¨å¼€å£ç«¯çš„åå°„éªŒè¯,case 1 "<<  std::endl;
     ms=1.25;
     p21=p21_from_Ms(ms,Cpv);
     std::cout<<" p21=    "<< p21<< std::endl;
@@ -233,7 +236,7 @@ int main()
          std::cout<<" dxdtc1_lead=    "<<dxdtc1_lead <<" dxdtc1_trail=    " << dxdtc1_trail << std::endl;
     }
 //case 2
-std::cout<< " ÔË¶¯¼¤²¨ÔÚ¿ª¿Ú¶ËµÄ·´ÉäÑéÖ¤,case 2 "<<  std::endl;
+std::cout<< " è¿åŠ¨æ¿€æ³¢åœ¨å¼€å£ç«¯çš„åå°„éªŒè¯,case 2 "<<  std::endl;
     ms=1.5;
     p21=p21_from_Ms(ms,Cpv);
     std::cout<<" p21=    "<< p21<< std::endl;
@@ -253,7 +256,7 @@ std::cout<< " ÔË¶¯¼¤²¨ÔÚ¿ª¿Ú¶ËµÄ·´ÉäÑéÖ¤,case 2 "<<  std::endl;
          std::cout<<" c*/c1=    "<<cStarc1<<" c*/c2=    "<< cStarc1/c21 <<" p*/p1=    " <<  pStarp1<< std::endl;
     }
 //case 3
-std::cout<< " ÔË¶¯¼¤²¨ÔÚ¿ª¿Ú¶ËµÄ·´ÉäÑéÖ¤,case 3 "<<  std::endl;
+std::cout<< " è¿åŠ¨æ¿€æ³¢åœ¨å¼€å£ç«¯çš„åå°„éªŒè¯,case 3 "<<  std::endl;
     ms=2.5;
     p21=p21_from_Ms(ms,Cpv);
     std::cout<<" p21=    "<< p21<< std::endl;
@@ -268,7 +271,7 @@ std::cout<< " ÔË¶¯¼¤²¨ÔÚ¿ª¿Ú¶ËµÄ·´ÉäÑéÖ¤,case 3 "<<  std::endl;
                  std::cout<<" v2/c1=    "<<v2c1 << std::endl;
    //
     
- std::cout<< " ÔË¶¯¼¤²¨+ÔË¶¯¼¤²¨µÄÏàÓöÑéÖ¤,case L+R "<<  std::endl;   
+ std::cout<< " è¿åŠ¨æ¿€æ³¢+è¿åŠ¨æ¿€æ³¢çš„ç›¸é‡éªŒè¯,case L+R "<<  std::endl;   
   //ref[1] p347 ex8-7  
  p1=1.e5;
  T1=300.;
@@ -331,8 +334,8 @@ std::cout<< " ÔË¶¯¼¤²¨ÔÚ¿ª¿Ú¶ËµÄ·´ÉäÑéÖ¤,case 3 "<<  std::endl;
      std::cout<< "AbsV_Sa/c1=   "<< Dac1<<"   AbsV_Sb/c1=    "<< Dbc1<<"   AbsV_Sc/c1=   "<< Dcc1<<"   AbsV_Sd/c1=  " << Ddc1 << std::endl;   
      
     //
-//Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤
-std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std::endl;  
+//åŒå‘æ¿€æ³¢è¿½èµ¶åå°„ä¸ºè†¨èƒ€æ³¢çš„éªŒè¯
+std::cout<< "............åŒå‘æ¿€æ³¢è¿½èµ¶åå°„ä¸ºè†¨èƒ€æ³¢çš„éªŒè¯.................."<<std::endl;  
  p1=1.e5;
  T1=300.;
  c1=sqrt(Cpv*Rg*T1);
@@ -350,7 +353,7 @@ std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std:
  
  
  //
- //¼¤²¨+½Ó´¥Ãæ·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤
+ //æ¿€æ³¢+æŽ¥è§¦é¢åå°„ä¸ºè†¨èƒ€æ³¢çš„éªŒè¯
  p1=1.e5;
  p2=p1;
  T1=300.;
@@ -364,7 +367,7 @@ std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std:
  rRun=0;
  double rho21=T1/T2;
    if(case_SaInterJ_from_P32( p32,   Cpv1, Cpv2,    c21) ==0)    {
-   // std::cout<< "...........¼¤²¨+½Ó´¥Ãæ·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std::endl;  
+   // std::cout<< "...........æ¿€æ³¢+æŽ¥è§¦é¢åå°„ä¸ºè†¨èƒ€æ³¢çš„éªŒè¯.................."<<std::endl;  
     std::cout<< "The shock meets interface reflects as a RAREFACTION."<< std::endl;
     SaInterJ_reflectExp_from_P32(     p32,           v2/c2,        Cpv1, Cpv2,    c21,   rho21, rRun,
                                      Msa , Msb, v4c1,p41, p51  ) ; 
@@ -373,11 +376,11 @@ std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std:
     std::cout<<" p41=p51=   " << p41  << "   p31=" <<p32 << std::endl;
     std::cout<<" v4/c1=   " << v4c1  << std::endl;}
  //
- //¼¤²¨+½Ó´¥Ãæ·´ÉäÎª¼¤²¨µÄÑéÖ¤
+ //æ¿€æ³¢+æŽ¥è§¦é¢åå°„ä¸ºæ¿€æ³¢çš„éªŒè¯
  
   if(case_SaInterJ_from_P32( p32,   Cpv1, Cpv2,    c21) ==1)   { 
      std::cout<< "The shock meets interface reflects as a SHOCK."<< std::endl;
-     // std::cout<< "...........¼¤²¨+½Ó´¥Ãæ·´ÉäÎª¼¤²¨µÄÑéÖ¤.................."<<std::endl;  
+     // std::cout<< "...........æ¿€æ³¢+æŽ¥è§¦é¢åå°„ä¸ºæ¿€æ³¢çš„éªŒè¯.................."<<std::endl;  
     SaInterJ_reflectShock_from_P32(  p32,  v2/c2,  Cpv1, Cpv2,  c21,  rho21, rRun,
                                      Msa ,Mr,Msb, v4c1,p41, p51  ) ;  
     std::cout<< "Msa=  "<< Msa <<"    Msb=  "<< Msb  << "  Mr =   "<< Mr << std::endl;
@@ -386,9 +389,9 @@ std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std:
 
     
     
-    //¼¤²¨¹ÜÑéÖ¤
+    //æ¿€æ³¢ç®¡éªŒè¯
     //ref[1] p361 ex8-8
-    std::cout<< "...........¼¤²¨¹ÜÑéÖ¤1.................."<<std::endl;   
+    std::cout<< "...........æ¿€æ³¢ç®¡éªŒè¯1.................."<<std::endl;   
     double pH=1.e7;
     double Th=300;
     double pL=1.e5;
@@ -417,7 +420,7 @@ std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std:
     std::cout<<" T6= "<<T61*Tl <<" T7= "<<T71*Tl <<" T8= "<<T81*Tl <<std::endl;
     //test 2 
     //ref[1] p361 ex8-8
-  std::cout<< "...........¼¤²¨¹ÜÑéÖ¤2.................."<<std::endl;        
+  std::cout<< "...........æ¿€æ³¢ç®¡éªŒè¯2.................."<<std::endl;        
      CpvH=1.4;
      CpvL=1.4;
      RgHL=1.;
@@ -442,15 +445,16 @@ std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std:
     std::cout<< "Msa=  "<< Msa <<"  Mra=  "<< Mra <<"        Mrb=  " <<  Mrb   <<  std::endl;
     std::cout<<" p31=p21=   " << p21  << std::endl;
     std::cout<<" v2/c1=   " << v2c1  << std::endl; 
-    
+    v5c1 =v21c1_from_p21(p51/p21,Cpv,0)*sqrt(T21)+v2c1;
+    std::cout<< "v5c1=  "<< v5c1  << std::endl;    
     std::cout<< "T2=  "<< T21*Tl<<"       T3=  "<< T31*Tl   << std::endl;
     std::cout<< "p2=  "<< p21*pL<<"      Ma2=  "<<  v2c1/sqrt(T21_from_p21(p21,CpvL))  <<std::endl;
-    std::cout<< "p5= "<< p51*pL<<"       T5= "<< T51*Tl<< std::endl;
-    std::cout<<" p6= "<<p61*pL<<" p7= "<<p71*pL<<" p8= "<<p81*pL <<std::endl;
-    std::cout<<" T6= "<<T61*Tl <<" T7= "<<T71*Tl <<" T8= "<<T81*Tl <<std::endl;
+    std::cout<< "p5= "<<  p51*pL<<"       T5= "<< T51*Tl<< std::endl;
+    std::cout<<" p6= "<<  p61*pL<<" p7= "<<p71*pL<<" p8= "<<p81*pL <<std::endl;
+    std::cout<<" T6= "<<  T61*Tl <<" T7= "<<T71*Tl <<" T8= "<<T81*Tl <<std::endl;
     
-    //     ¼¤²¨¹ÜµÄÑéÖ¤3
-    std::cout<< "  ¼¤²¨¹ÜµÄÑéÖ¤3"<<std::endl;
+    //     æ¿€æ³¢ç®¡çš„éªŒè¯3
+    std::cout<< "  æ¿€æ³¢ç®¡çš„éªŒè¯3"<<std::endl;
     
     pH=20.e5;
     Th=300;
@@ -479,4 +483,5 @@ std::cout<< "............Í¬Ïò¼¤²¨×·¸Ï·´ÉäÎªÅòÕÍ²¨µÄÑéÖ¤.................."<<std:
     std::cout<<" p6= "<<p61*pL<<" p7= "<<p71*pL<<" p8= "<<p81*pL <<std::endl;
     std::cout<<" T6= "<<T61*Tl <<" T7= "<<T71*Tl <<" T8= "<<T81*Tl <<std::endl;
     
+  
     return 0;}
